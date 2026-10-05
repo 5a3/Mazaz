@@ -1,27 +1,82 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة إدارة منيو مزاز | Mazaz Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لوحة إدارة منيو مزاز | Mazaz Admin Dashboard</title>
+
+    <!-- Meta Data & SEO -->
+    <meta name="description"
+        content="لوحة التحكم الرسمية لإدارة منيو محل مزاز (Mazaz) - تعديل الأقسام والمنتجات والأحجام والإضافات لحظياً عبر قاعدة البيانات السحابية.">
+    <meta name="keywords"
+        content="مزاز, منيو مزاز, عصائر مزاز, وجبات سريعة, لوحة تحكم, منيو إلكتروني, Mazaz, Mazaz Admin">
+    <meta name="author" content="Mazaz Team">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#00A651">
+
+    <!-- Open Graph / Facebook / WhatsApp Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="لوحة إدارة منيو مزاز | Mazaz Admin">
+    <meta property="og:description"
+        content="نظام إدارة منيو مزاز الإلكتروني للأقسام والمنتجات والعصائر والوجبات السريعة.">
+    <meta property="og:image" content="assets/logo.jpg">
+    <meta property="og:locale" content="ar_SA">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="assets/logo.jpg">
+    <link rel="apple-touch-icon" href="assets/logo.jpg">
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts (Tajawal) -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <div class="admin-container">
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- Login Screen Overlay -->
+    <div class="login-overlay active" id="loginOverlay">
+        <div class="login-card">
+            <div class="login-header">
+                <img src="assets/logo.jpg" alt="مزاز Mazaz" class="login-logo">
+                <h2>تسجيل الدخول | مزاز</h2>
+                <p>أدخل اسم المستخدم وكلمة المرور للوصول للوحة التحكم</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginUsername"><i class="fa-solid fa-user"></i> اسم المستخدم <span
+                            class="req">*</span></label>
+                    <input type="text" id="loginUsername" class="form-control" placeholder="مثال: superadmin" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword"><i class="fa-solid fa-lock"></i> كلمة المرور <span
+                            class="req">*</span></label>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block" id="loginSubmitBtn">
+                    <span class="btn-spinner" style="display:none;"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                    <span class="btn-text"><i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Container -->
+    <div class="admin-container" id="adminDashboard" style="display: none;">
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="brand-header">
                 <img src="assets/logo.jpg" alt="مزاز Mazaz" class="brand-logo">
                 <div class="brand-info">
                     <h2>مزاز | MAZAZ</h2>
                     <p>لوحة التحكم بالمنيو</p>
                 </div>
+                <button class="mobile-close-sidebar" id="closeSidebarBtn">&times;</button>
             </div>
-            
+
             <nav class="sidebar-nav">
                 <button class="nav-btn active" data-tab="categories-tab">
                     <i class="fa-solid fa-list-check"></i>
@@ -31,16 +86,30 @@
                     <i class="fa-solid fa-utensils"></i>
                     <span>إدارة المنتجات</span>
                 </button>
-                <button class="nav-btn" data-tab="seed-tab">
+                <button class="nav-btn" data-tab="admins-tab" id="adminsNavBtn" style="display: none;">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>إدارة المدراء</span>
+                </button>
+                <button class="nav-btn" data-tab="seed-tab" style="display: none;">
                     <i class="fa-solid fa-database"></i>
                     <span>إدخال البيانات الأولية</span>
                 </button>
             </nav>
 
             <div class="sidebar-footer">
-                <div class="firebase-status" id="firebaseStatus">
+                <div class="user-profile-info" id="userProfileInfo">
+                    <div class="user-avatar"><i class="fa-solid fa-user-gear"></i></div>
+                    <div class="user-details">
+                        <strong id="currentAdminName">مدير</strong>
+                        <span class="role-badge" id="currentAdminRoleBadge">superadmin</span>
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-danger btn-block mt-2" id="logoutBtn">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> تسجيل الخروج
+                </button>
+                <div class="firebase-status mt-2" id="firebaseStatus">
                     <span class="status-dot"></span>
-                    <span class="status-text">جاري الاتصال بـ Firebase...</span>
+                    <span class="status-text">جاري الاتصال بالنظام...</span>
                 </div>
             </div>
         </aside>
@@ -49,9 +118,14 @@
         <main class="main-content">
             <!-- Top Navbar -->
             <header class="top-navbar">
-                <div class="page-title">
-                    <h1 id="currentPageTitle">إدارة الأقسام</h1>
-                    <p id="currentPageSub">إضافة وتعديل وترتيب أقسام المنيو</p>
+                <div class="navbar-left flex-align">
+                    <button class="mobile-toggle-btn" id="mobileMenuBtn">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="page-title">
+                        <h1 id="currentPageTitle">إدارة الأقسام</h1>
+                        <p id="currentPageSub">إضافة وتعديل وترتيب أقسام المنيو</p>
+                    </div>
                 </div>
                 <div class="header-actions">
                     <button class="btn btn-primary" id="headerAddBtn">
@@ -75,13 +149,14 @@
                                     <th>الترتيب</th>
                                     <th>اسم القسم</th>
                                     <th>عدد المنتجات</th>
+                                    <th>آخر تعديل بواسطة</th>
                                     <th>الحالة</th>
                                     <th>الإجراءات</th>
                                 </tr>
                             </thead>
                             <tbody id="categoriesTableBody">
                                 <tr>
-                                    <td colspan="5" class="text-center loading-cell">جاري تحميل الأقسام...</td>
+                                    <td colspan="6" class="text-center loading-cell">جاري تحميل الأقسام...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -109,13 +184,49 @@
                                     <th>القسم</th>
                                     <th>التسعير (صغير / كبير / موحد)</th>
                                     <th>الإضافات</th>
+                                    <th>آخر تعديل بواسطة</th>
                                     <th>الحالة</th>
                                     <th>الإجراءات</th>
                                 </tr>
                             </thead>
                             <tbody id="productsTableBody">
                                 <tr>
-                                    <td colspan="7" class="text-center loading-cell">جاري تحميل المنتجات...</td>
+                                    <td colspan="8" class="text-center loading-cell">جاري تحميل المنتجات...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admins Tab (For Superadmin only) -->
+            <div class="tab-content" id="admins-tab">
+                <div class="card">
+                    <div class="card-header flex-header">
+                        <div>
+                            <h3>إدارة حسابات المدراء والصلات</h3>
+                            <p class="text-muted" style="font-size:0.85rem;">إضافة وتعديل وحذف مدراء لوحة التحكم وتحديد
+                                أدوارهم (Superadmin / Admin)</p>
+                        </div>
+                        <button class="btn btn-primary" id="addAdminBtn">
+                            <i class="fa-solid fa-user-plus"></i> إضافة مدير جديد
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>اسم المدير</th>
+                                    <th>اسم المستخدم (Username)</th>
+                                    <th>كلمة المرور</th>
+                                    <th>الدور / الصلاحية (Role)</th>
+                                    <th>تاريخ الإنشاء</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminsTableBody">
+                                <tr>
+                                    <td colspan="6" class="text-center loading-cell">جاري تحميل المدراء...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -128,16 +239,63 @@
                     <div class="seed-icon">
                         <i class="fa-solid fa-cloud-arrow-up"></i>
                     </div>
-                    <h2>رفع منيو مزاز بالكامل إلى Firebase Firestore</h2>
-                    <p>قم بضغط الزر أدناه لإدراج جميع الأقسام والمنتجات المكتوبة في منيو مزاز (عصائر، وجبات سريعة، بروتين، مشروبات، ميلك شيك...) بجميع أسعار الصغير والكبير والإضافات تلقائياً!</p>
-                    <button class="btn btn-success btn-lg" id="seedDatabaseBtn">
-                        <i class="fa-solid fa-bolt"></i>
-                        <span>إدراج المنيو الكامل الآن</span>
-                    </button>
+                    <h2>إدارة بيانات منيو مزاز الأولية (Firebase Firestore)</h2>
+                    <p>يمكنك إدراج جميع الأقسام والمنتجات المكتوبة في منيو مزاز بجميع أسعار الصغير والكبير والإضافات
+                        تلقائياً، أو مسح البيانات وإعادة ضبط المنيو من الجذور.</p>
+                    <div class="seed-buttons-group">
+                        <button class="btn btn-success btn-lg" id="seedDatabaseBtn">
+                            <i class="fa-solid fa-bolt"></i>
+                            <span>إدراج المنيو الكامل الآن</span>
+                        </button>
+                        <button class="btn btn-danger btn-lg" id="clearDatabaseBtn">
+                            <i class="fa-solid fa-trash-can"></i>
+                            <span>حذف المنيو الحالي بالكامل</span>
+                        </button>
+                    </div>
                     <div id="seedProgress" class="seed-progress"></div>
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Admin Modal -->
+    <div class="modal" id="adminModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="adminModalTitle">إضافة مدير جديد</h3>
+                <button class="close-btn" data-close="adminModal">&times;</button>
+            </div>
+            <form id="adminForm">
+                <input type="hidden" id="adminId">
+                <div class="form-group">
+                    <label for="adminDisplayName">اسم المدير (العرض) <span class="req">*</span></label>
+                    <input type="text" id="adminDisplayName" class="form-control" placeholder="مثال: أحمد علي" required>
+                </div>
+                <div class="form-group">
+                    <label for="adminUsername">اسم المستخدم (Username) <span class="req">*</span></label>
+                    <input type="text" id="adminUsername" class="form-control" placeholder="مثال: ahmed" required>
+                </div>
+                <div class="form-group">
+                    <label for="adminPassword">كلمة المرور (غير مشفرة) <span class="req">*</span></label>
+                    <input type="text" id="adminPassword" class="form-control" placeholder="مثال: 123456" required>
+                </div>
+                <div class="form-group">
+                    <label for="adminRole">الصلاحية (Role) <span class="req">*</span></label>
+                    <select id="adminRole" class="form-control" required>
+                        <option value="admin">مدير عادي (Admin)</option>
+                        <option value="superadmin">مدير عام (Superadmin)</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-close="adminModal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary" id="adminSubmitBtn">
+                        <span class="btn-spinner" style="display:none;"><i
+                                class="fa-solid fa-spinner fa-spin"></i></span>
+                        <span class="btn-text">حفظ المدير</span>
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- Category Modal -->
@@ -151,7 +309,8 @@
                 <input type="hidden" id="categoryId">
                 <div class="form-group">
                     <label for="categoryName">اسم القسم <span class="req">*</span></label>
-                    <input type="text" id="categoryName" class="form-control" placeholder="مثال: قسم الوجبات السريعة" required>
+                    <input type="text" id="categoryName" class="form-control" placeholder="مثال: قسم الوجبات السريعة"
+                        required>
                 </div>
                 <div class="form-group">
                     <label for="categoryOrder">الترتيب <span class="req">*</span></label>
@@ -166,7 +325,11 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-close="categoryModal">إلغاء</button>
-                    <button type="submit" class="btn btn-primary">حفظ القسم</button>
+                    <button type="submit" class="btn btn-primary" id="categorySubmitBtn">
+                        <span class="btn-spinner" style="display:none;"><i
+                                class="fa-solid fa-spinner fa-spin"></i></span>
+                        <span class="btn-text">حفظ القسم</span>
+                    </button>
                 </div>
             </form>
         </div>
@@ -190,7 +353,8 @@
                     </div>
                     <div class="form-group col-6">
                         <label for="productName">اسم المنتج <span class="req">*</span></label>
-                        <input type="text" id="productName" class="form-control" placeholder="مثال: ساندوتش بيض مقلي مع جبن" required>
+                        <input type="text" id="productName" class="form-control"
+                            placeholder="مثال: ساندوتش بيض مقلي مع جبن" required>
                     </div>
                 </div>
 
@@ -251,16 +415,42 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-close="productModal">إلغاء</button>
-                    <button type="submit" class="btn btn-primary">حفظ المنتج</button>
+                    <button type="submit" class="btn btn-primary" id="productSubmitBtn">
+                        <span class="btn-spinner" style="display:none;"><i
+                                class="fa-solid fa-spinner fa-spin"></i></span>
+                        <span class="btn-text">حفظ المنتج</span>
+                    </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Confirm Delete Modal -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content text-center">
+            <div class="confirm-icon">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 id="confirmTitle" class="mt-2">تأكيد الإجراء</h3>
+            <p id="confirmMessage" class="text-muted mt-2">هل أنت تأكد من إتمام هذا الإجراء؟</p>
+            <div class="modal-footer justify-center mt-4">
+                <button type="button" class="btn btn-secondary" id="confirmCancelBtn">إلغاء</button>
+                <button type="button" class="btn btn-danger" id="confirmOkBtn">
+                    <span class="btn-spinner" style="display:none;"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                    <span class="btn-text">نعم، تأكيد الحذف</span>
+                </button>
+            </div>
         </div>
     </div>
 
     <!-- Firebase SDK Scripts -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    
+
     <script src="app.js"></script>
 </body>
+
 </html>
