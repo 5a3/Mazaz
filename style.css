@@ -575,8 +575,334 @@ input:checked + .slider:before {
     line-height: 1.8;
 }
 
-.seed-progress {
-    margin-top: 20px;
-    font-weight: 700;
-    color: var(--primary);
+.seed-buttons-group {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
 }
+
+/* Toast Notification System */
+.toast-container {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 380px;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: #FFFFFF;
+    color: var(--text-dark);
+    border-radius: var(--radius-md);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    border-right: 4px solid var(--primary);
+    font-size: 0.95rem;
+    font-weight: 500;
+    animation: toastIn 0.3s ease-out forwards;
+}
+
+.toast-success {
+    border-right-color: #2ECC71;
+}
+
+.toast-success i {
+    color: #2ECC71;
+}
+
+.toast-error {
+    border-right-color: var(--accent-pink);
+}
+
+.toast-error i {
+    color: var(--accent-pink);
+}
+
+.toast-info {
+    border-right-color: #3498DB;
+}
+
+.toast-info i {
+    color: #3498DB;
+}
+
+@keyframes toastIn {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toastOut {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(-30px); }
+}
+
+/* Spinner Button Utility */
+.btn-spinner {
+    margin-left: 6px;
+}
+
+.btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Confirm Delete Modal Styling */
+.confirm-icon {
+    font-size: 3rem;
+    color: var(--accent-pink);
+}
+
+.text-center {
+    text-align: center;
+}
+
+.justify-center {
+    justify-content: center !important;
+}
+
+/* Utility Classes for Flex & Alignment */
+.flex-align {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Mobile Toggle & Backdrop */
+.mobile-toggle-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    font-size: 1.4rem;
+    color: var(--primary);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+}
+
+.mobile-close-sidebar {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.sidebar-backdrop {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(2px);
+    z-index: 99;
+}
+
+.sidebar-backdrop.active {
+    display: block;
+}
+
+/* Responsive Media Queries (Mobile & Tablet) */
+@media (max-width: 992px) {
+    .sidebar {
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .mobile-close-sidebar {
+        display: block;
+    }
+
+    .main-content {
+        margin-right: 0;
+        width: 100%;
+        padding: 16px;
+    }
+
+    .mobile-toggle-btn {
+        display: inline-block;
+    }
+
+    .top-navbar {
+        padding: 16px;
+        flex-wrap: wrap;
+        gap: 14px;
+    }
+
+    .header-actions {
+        width: 100%;
+    }
+
+    .header-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .modal-content.modal-lg {
+        width: 95%;
+        padding: 18px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .data-table th, .data-table td {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .page-title h1 {
+        font-size: 1.25rem;
+    }
+
+    .page-title p {
+        font-size: 0.8rem;
+    }
+
+    .seed-card {
+        padding: 30px 16px;
+        margin: 20px auto;
+    }
+
+    .seed-buttons-group {
+        flex-direction: column;
+    }
+}
+
+/* Login Screen Overlay */
+.login-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, rgba(0, 166, 81, 0.95), rgba(0, 100, 45, 0.95));
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+    backdrop-filter: blur(5px);
+}
+
+.login-overlay.active {
+    display: flex;
+}
+
+.login-card {
+    background: #FFFFFF;
+    width: 100%;
+    max-width: 420px;
+    border-radius: var(--radius-md);
+    padding: 36px 30px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+    animation: modalFadeIn 0.3s ease-out;
+    text-align: center;
+}
+
+.login-logo {
+    width: 75px;
+    height: 75px;
+    object-fit: contain;
+    margin-bottom: 12px;
+}
+
+.login-header h2 {
+    color: var(--primary);
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.login-header p {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    margin-bottom: 24px;
+}
+
+.btn-block {
+    width: 100%;
+    justify-content: center;
+}
+
+/* User Profile Badge in Sidebar */
+.user-profile-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #F1F5F9;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    overflow: hidden;
+}
+
+.user-details strong {
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.role-badge {
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 700;
+    display: inline-block;
+    width: fit-content;
+}
+
+.role-badge.superadmin {
+    background: #FEE2E2;
+    color: #EF4444;
+}
+
+.role-badge.admin {
+    background: #E0F2FE;
+    color: #0284C7;
+}
+
+.updated-by-tag {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+
+
