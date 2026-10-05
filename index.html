@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة إدارة منيو مزاز | Mazaz Admin</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Tajawal) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand-header">
+                <img src="assets/logo.jpg" alt="مزاز Mazaz" class="brand-logo">
+                <div class="brand-info">
+                    <h2>مزاز | MAZAZ</h2>
+                    <p>لوحة التحكم بالمنيو</p>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-tab="categories-tab">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>إدارة الأقسام</span>
+                </button>
+                <button class="nav-btn" data-tab="products-tab">
+                    <i class="fa-solid fa-utensils"></i>
+                    <span>إدارة المنتجات</span>
+                </button>
+                <button class="nav-btn" data-tab="seed-tab">
+                    <i class="fa-solid fa-database"></i>
+                    <span>إدخال البيانات الأولية</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="firebase-status" id="firebaseStatus">
+                    <span class="status-dot"></span>
+                    <span class="status-text">جاري الاتصال بـ Firebase...</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Navbar -->
+            <header class="top-navbar">
+                <div class="page-title">
+                    <h1 id="currentPageTitle">إدارة الأقسام</h1>
+                    <p id="currentPageSub">إضافة وتعديل وترتيب أقسام المنيو</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" id="headerAddBtn">
+                        <i class="fa-solid fa-plus"></i>
+                        <span id="headerAddBtnText">إضافة قسم جديد</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content Tabs -->
+            <div class="tab-content active" id="categories-tab">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>قائمة الأقسام</h3>
+                        <span class="badge" id="categoriesCount">0 قسم</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>الترتيب</th>
+                                    <th>اسم القسم</th>
+                                    <th>عدد المنتجات</th>
+                                    <th>الحالة</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categoriesTableBody">
+                                <tr>
+                                    <td colspan="5" class="text-center loading-cell">جاري تحميل الأقسام...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="products-tab">
+                <div class="card">
+                    <div class="card-header flex-header">
+                        <div class="filter-group">
+                            <label for="categoryFilter"><i class="fa-solid fa-filter"></i> تصفية حسب القسم:</label>
+                            <select id="categoryFilter" class="form-control">
+                                <option value="all">جميع الأقسام</option>
+                            </select>
+                        </div>
+                        <span class="badge" id="productsCount">0 منتج</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>الترتيب</th>
+                                    <th>اسم المنتج</th>
+                                    <th>القسم</th>
+                                    <th>التسعير (صغير / كبير / موحد)</th>
+                                    <th>الإضافات</th>
+                                    <th>الحالة</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTableBody">
+                                <tr>
+                                    <td colspan="7" class="text-center loading-cell">جاري تحميل المنتجات...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="seed-tab">
+                <div class="card seed-card">
+                    <div class="seed-icon">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </div>
+                    <h2>رفع منيو مزاز بالكامل إلى Firebase Firestore</h2>
+                    <p>قم بضغط الزر أدناه لإدراج جميع الأقسام والمنتجات المكتوبة في منيو مزاز (عصائر، وجبات سريعة، بروتين، مشروبات، ميلك شيك...) بجميع أسعار الصغير والكبير والإضافات تلقائياً!</p>
+                    <button class="btn btn-success btn-lg" id="seedDatabaseBtn">
+                        <i class="fa-solid fa-bolt"></i>
+                        <span>إدراج المنيو الكامل الآن</span>
+                    </button>
+                    <div id="seedProgress" class="seed-progress"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Category Modal -->
+    <div class="modal" id="categoryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="categoryModalTitle">إضافة قسم جديد</h3>
+                <button class="close-btn" data-close="categoryModal">&times;</button>
+            </div>
+            <form id="categoryForm">
+                <input type="hidden" id="categoryId">
+                <div class="form-group">
+                    <label for="categoryName">اسم القسم <span class="req">*</span></label>
+                    <input type="text" id="categoryName" class="form-control" placeholder="مثال: قسم الوجبات السريعة" required>
+                </div>
+                <div class="form-group">
+                    <label for="categoryOrder">الترتيب <span class="req">*</span></label>
+                    <input type="number" id="categoryOrder" class="form-control" value="1" min="1" required>
+                </div>
+                <div class="form-group checkbox-group">
+                    <label class="switch">
+                        <input type="checkbox" id="categoryActive" checked>
+                        <span class="slider round"></span>
+                    </label>
+                    <span>مفعل ومتوفر في المنيو</span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-close="categoryModal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary">حفظ القسم</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Product Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3 id="productModalTitle">إضافة منتج جديد</h3>
+                <button class="close-btn" data-close="productModal">&times;</button>
+            </div>
+            <form id="productForm">
+                <input type="hidden" id="productId">
+                <div class="form-row">
+                    <div class="form-group col-6">
+                        <label for="productCategory">القسم التابع له <span class="req">*</span></label>
+                        <select id="productCategory" class="form-control" required>
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                    <div class="form-group col-6">
+                        <label for="productName">اسم المنتج <span class="req">*</span></label>
+                        <input type="text" id="productName" class="form-control" placeholder="مثال: ساندوتش بيض مقلي مع جبن" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-6">
+                        <label for="productOrder">الترتيب داخل القسم <span class="req">*</span></label>
+                        <input type="number" id="productOrder" class="form-control" value="1" min="1" required>
+                    </div>
+                    <div class="form-group col-6">
+                        <label for="pricingType">نوع التسعير <span class="req">*</span></label>
+                        <select id="pricingType" class="form-control" required>
+                            <option value="variant">حجمين (صغير / كبير)</option>
+                            <option value="single">سعر موحد</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Pricing Single Section -->
+                <div class="pricing-section" id="singlePriceSection" style="display:none;">
+                    <div class="form-group">
+                        <label for="basePrice">السعر الموحد <span class="req">*</span></label>
+                        <input type="number" id="basePrice" class="form-control" placeholder="مثال: 1500" min="0">
+                    </div>
+                </div>
+
+                <!-- Pricing Variants Section -->
+                <div class="pricing-section" id="variantPriceSection">
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label for="smallPrice">سعر الحجم الصغير</label>
+                            <input type="number" id="smallPrice" class="form-control" placeholder="مثال: 600" min="0">
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="largePrice">سعر الحجم الكبير</label>
+                            <input type="number" id="largePrice" class="form-control" placeholder="مثال: 1200" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Addons Section -->
+                <div class="form-group">
+                    <label>الإضافات (إن وجدت):</label>
+                    <div id="addonsContainer" class="addons-container">
+                        <!-- Addon rows dynamically generated -->
+                    </div>
+                    <button type="button" class="btn btn-sm btn-secondary mt-2" id="addAddonBtn">
+                        <i class="fa-solid fa-plus"></i> إضافة خيار آخر (مثل: إضافة جبن 500)
+                    </button>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <label class="switch">
+                        <input type="checkbox" id="productAvailable" checked>
+                        <span class="slider round"></span>
+                    </label>
+                    <span>متوفر حالياً (Available)</span>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-close="productModal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary">حفظ المنتج</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase SDK Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    
+    <script src="app.js"></script>
+</body>
+</html>
