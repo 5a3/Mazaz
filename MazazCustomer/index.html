@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>منيو مزاز الرقمي | Mazaz Juice & Food Menu</title>
 
     <!-- Meta Data & SEO -->
-    <meta name="description" content="منيو مزاز الإلكتروني - تصفح أشهى العصائر الطبيعية والخلطات والوجبات السريعة والميلك شيك من محل مزاز (Mazaz) بأسعار وعروض متجددة.">
-    <meta name="keywords" content="مزاز, عصائر مزاز, وجبات سريعة, منيو مزاز, عصير عوار قلب, اصفهاني, ساندوتشات, Mazaz Menu">
+    <meta name="description"
+        content="منيو مزاز الإلكتروني - تصفح أشهى العصائر الطبيعية والخلطات والوجبات السريعة والميلك شيك من محل مزاز (Mazaz) بأسعار وعروض متجددة.">
+    <meta name="keywords"
+        content="مزاز, عصائر مزاز, وجبات سريعة, منيو مزاز, عصير عوار قلب, اصفهاني, ساندوتشات, Mazaz Menu">
     <meta name="author" content="Mazaz Team">
     <meta name="theme-color" content="#00A651">
 
@@ -25,23 +28,60 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts (Tajawal) -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap">
-    
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap">
+
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <!-- App Header & Hero Banner -->
     <header class="hero-header">
         <div class="hero-overlay"></div>
         <div class="container hero-content">
             <div class="brand-badge">
-                <img src="../assets/logo.jpg" alt="مزاز Mazaz" class="menu-logo">
+                <img src="assets/logo.svg" alt="مزاز Mazaz" class="menu-logo">
                 <div class="brand-text">
-                    <h1>مزاز | MAZAZ</h1>
-                    <p><i class="fa-solid fa-location-dot"></i> طعم العصير الحقيقي والوجبات السريعة</p>
+                    <h1>منيو مزاز الرقمي | MAZAZ</h1>
+                    <p><i class="fa-solid fa-store"></i> طعم العصير الحقيقي والوجبات السريعة</p>
                 </div>
             </div>
-            
+
+            <!-- Prominent Paper Menu Cards (المنيو 1 والمنيو 2) Directly in Main View -->
+            <div class="menu-paper-cards-grid">
+                <div class="menu-paper-card"
+                    onclick="openMenuViewer('../assets/menu1.jpg', 'المنيو 1 - عصائر وميلك شيك')">
+                    <div class="paper-card-preview">
+                        <img src="../assets/menu1.jpg" alt="المنيو 1">
+                        <span class="preview-badge"><i class="fa-solid fa-magnifying-glass-plus"></i> عرض وتكبير</span>
+                    </div>
+                    <div class="paper-card-info">
+                        <h3><i class="fa-solid fa-glass-water"></i> المنيو 1</h3>
+                        <p>قسم العصائر والميلك شيك والخلطات</p>
+                        <a href="../assets/menu1.jpg" download="Mazaz_Menu_1.jpg" class="card-download-btn"
+                            onclick="event.stopPropagation()">
+                            <i class="fa-solid fa-download"></i> تحميل صورة
+                        </a>
+                    </div>
+                </div>
+
+                <div class="menu-paper-card"
+                    onclick="openMenuViewer('../assets/menu2.jpg', 'المنيو 2 - وجبات وحلا ومشروبات')">
+                    <div class="paper-card-preview">
+                        <img src="../assets/menu2.jpg" alt="المنيو 2">
+                        <span class="preview-badge"><i class="fa-solid fa-magnifying-glass-plus"></i> عرض وتكبير</span>
+                    </div>
+                    <div class="paper-card-info">
+                        <h3><i class="fa-solid fa-burger"></i> المنيو 2</h3>
+                        <p>قسم الوجبات السريعة والحلا والمشروبات</p>
+                        <a href="../assets/menu2.jpg" download="Mazaz_Menu_2.jpg" class="card-download-btn"
+                            onclick="event.stopPropagation()">
+                            <i class="fa-solid fa-download"></i> تحميل صورة
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <!-- Quick Search Input -->
             <div class="search-box">
                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
@@ -65,11 +105,7 @@
 
     <!-- Main Content Container -->
     <main class="container menu-main">
-        <!-- System Cache Status / Notice -->
-        <div class="menu-status-bar" id="menuStatusBar">
-            <span class="status-dot"></span>
-            <span id="statusText">جاري مزامنة المنيو...</span>
-        </div>
+        <!-- Menu Categories & Items Sections -->
 
         <!-- Menu Categories & Items Sections -->
         <div id="menuContainer" class="menu-container">
@@ -91,10 +127,29 @@
         </div>
     </div>
 
+    <!-- Full-Screen Interactive Menu Image Viewer Modal (Zoom + Download) -->
+    <div class="image-viewer-modal" id="imageViewerModal">
+        <div class="image-viewer-header">
+            <h3 id="viewerTitle">منيو مزاز</h3>
+            <div class="viewer-actions">
+                <button class="viewer-btn" id="zoomInBtn" title="تكبير الصورة"><i
+                        class="fa-solid fa-magnifying-glass-plus"></i></button>
+                <button class="viewer-btn" id="zoomOutBtn" title="تصغير الصورة"><i
+                        class="fa-solid fa-magnifying-glass-minus"></i></button>
+                <a class="viewer-btn download-link" id="downloadImageBtn" download="Mazaz_Menu.jpg"
+                    title="تحميل الصورة للهاتف"><i class="fa-solid fa-download"></i> تحميل الصورة</a>
+                <button class="viewer-btn close-viewer" id="closeViewerBtn">&times;</button>
+            </div>
+        </div>
+        <div class="image-viewer-body" id="imageViewerBody">
+            <img src="" alt="منيو مزاز" id="viewerImage" class="viewer-img">
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="app-footer">
         <div class="container">
-            <img src="../assets/logo.jpg" alt="مزاز" class="footer-logo">
+            <img src="assets/logo.svg" alt="مزاز" class="footer-logo">
             <p>جميع الحقوق محفوظة © محل مزاز MAZAZ 2026</p>
         </div>
     </footer>
@@ -105,4 +160,5 @@
 
     <script src="app.js"></script>
 </body>
+
 </html>

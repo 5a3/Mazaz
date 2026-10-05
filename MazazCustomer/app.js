@@ -164,7 +164,12 @@ function renderCategoriesNav() {
             if (activeCategoryFilter !== 'all') {
                 const targetSec = document.getElementById(`sec-${activeCategoryFilter}`);
                 if (targetSec) {
-                    targetSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    const navHeight = document.querySelector('.categories-nav-wrapper')?.offsetHeight || 70;
+                    const elementPosition = targetSec.getBoundingClientRect().top + window.pageYOffset;
+                    window.scrollTo({
+                        top: elementPosition - navHeight - 15,
+                        behavior: 'smooth'
+                    });
                 }
             }
         });
@@ -360,6 +365,66 @@ if (clearSearchBtn) {
         if (searchInput) searchInput.value = '';
         clearSearchBtn.style.display = 'none';
         renderMenu();
+    });
+}
+
+// ==========================================
+// 4. Interactive Menu Paper Image Viewer & Download
+// ==========================================
+const imageViewerModal = document.getElementById('imageViewerModal');
+const viewerTitle = document.getElementById('viewerTitle');
+const viewerImage = document.getElementById('viewerImage');
+const downloadImageBtn = document.getElementById('downloadImageBtn');
+const closeViewerBtn = document.getElementById('closeViewerBtn');
+const zoomInBtn = document.getElementById('zoomInBtn');
+const zoomOutBtn = document.getElementById('zoomOutBtn');
+
+let currentZoomScale = 1;
+
+window.openMenuViewer = function(imgSrc, titleText) {
+    if (!imageViewerModal || !viewerImage) return;
+    
+    currentZoomScale = 1;
+    viewerImage.style.transform = `scale(${currentZoomScale})`;
+    viewerImage.src = imgSrc;
+    if (viewerTitle) viewerTitle.textContent = titleText;
+    if (downloadImageBtn) {
+        downloadImageBtn.href = imgSrc;
+        downloadImageBtn.download = titleText.replace(/\s+/g, '_') + '.jpg';
+    }
+
+    imageViewerModal.classList.add('active');
+};
+
+if (closeViewerBtn) {
+    closeViewerBtn.addEventListener('click', () => {
+        imageViewerModal.classList.remove('active');
+    });
+}
+
+if (imageViewerModal) {
+    imageViewerModal.addEventListener('click', (e) => {
+        if (e.target === imageViewerModal) {
+            imageViewerModal.classList.remove('active');
+        }
+    });
+}
+
+if (zoomInBtn) {
+    zoomInBtn.addEventListener('click', () => {
+        if (currentZoomScale < 2.5) {
+            currentZoomScale += 0.25;
+            viewerImage.style.transform = `scale(${currentZoomScale})`;
+        }
+    });
+}
+
+if (zoomOutBtn) {
+    zoomOutBtn.addEventListener('click', () => {
+        if (currentZoomScale > 0.6) {
+            currentZoomScale -= 0.25;
+            viewerImage.style.transform = `scale(${currentZoomScale})`;
+        }
     });
 }
 

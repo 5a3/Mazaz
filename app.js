@@ -377,8 +377,10 @@ async function touchSystemMetadata() {
             last_updated_at: firebase.firestore.Timestamp.fromMillis(now)
         }, { merge: true });
         localStorage.setItem('mazaz_last_sync', now.toString());
+        return now;
     } catch (e) {
         console.warn('Metadata touch error:', e);
+        return Date.now();
     }
 }
 
