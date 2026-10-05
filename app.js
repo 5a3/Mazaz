@@ -209,9 +209,8 @@ function showDashboard() {
         if (adminsNavBtn) adminsNavBtn.style.display = 'none';
     }
 
-    // Realtime listeners
-    listenToCategories();
-    listenToProducts();
+    // Smart Caching Data Load (Minimizes Firestore Reads to 1 Document Check)
+    loadDataSmartly();
 }
 
 // Login Form Submit Handler
@@ -367,33 +366,98 @@ function addAddonRow(name = '', price = '') {
 }
 
 // ==========================================
-// 4. Firestore Realtime Listeners
+// 4. Smart Local Caching System (Firestore Optimization)
 // ==========================================
-function listenToCategories() {
-    db.collection('categories').orderBy('order', 'asc').onSnapshot(snapshot => {
-        categories = [];
-        snapshot.forEach(doc => {
-            categories.push({ id: doc.id, ...doc.data() });
-        });
+
+// Update Metadata Timestamp in Firestore (1 Write call on changes)
+async function touchSystemMetadata() {
+    try {
+        const now = Date.now();
+        await db.collection('system_metadata').doc('version').set({
+            last_updated_at: firebase.firestore.Timestamp.fromMillis(now)
+        }, { merge: true });
+        localStorage.setItem('mazaz_last_sync', now.toString());
+    } catch (e) {
+        console.warn('Metadata touch error:', e);
+    }
+}
+
+// Save & Read Local Cache
+function setLocalCache(key, data) {
+    try {
+        localStorage.setItem(`mazaz_cache_${key}`, JSON.stringify(data));
+    } catch (e) {
+        console.warn('Cache write failed:', e);
+    }
+}
+
+function getLocalCache(key) {
+    try {
+        const cached = localStorage.getItem(`mazaz_cache_${key}`);
+        return cached ? JSON.parse(cached) : null;
+    } catch (e) {
+        return null;
+    }
+}
+
+// Load Data Smartly: Checks 1 document (version metadata) instead of reading full DB
+async function loadDataSmartly() {
+    const cachedCategories = getLocalCache('categories');
+    const cachedProducts = getLocalCache('products');
+    const localSyncTime = parseInt(localStorage.getItem('mazaz_last_sync') || '0');
+
+    // If cache exists, render immediately for instantaneous UI loading
+    if (cachedCategories && cachedProducts) {
+        categories = cachedCategories;
+        products = cachedProducts;
         renderCategoriesTable();
         populateCategoryDropdowns();
         renderProductsTable();
-    }, err => {
-        console.error("Error fetching categories:", err);
-    });
+    }
+
+    try {
+        // Step 1: Read ONLY ONE document to check last system update (1 Read)
+        const metaDoc = await db.collection('system_metadata').doc('version').get();
+        let serverSyncTime = 0;
+
+        if (metaDoc.exists && metaDoc.data().last_updated_at) {
+            serverSyncTime = metaDoc.data().last_updated_at.toMillis();
+        }
+
+        // Step 2: Compare timestamps. Fetch only if server data is newer or cache is missing
+        if (!cachedCategories || !cachedProducts || serverSyncTime > localSyncTime) {
+            await fetchFreshDataFromFirebase();
+            localStorage.setItem('mazaz_last_sync', (serverSyncTime || Date.now()).toString());
+        }
+    } catch (err) {
+        console.error('Smart cache error, fallback to fresh fetch:', err);
+        if (!cachedCategories || !cachedProducts) {
+            await fetchFreshDataFromFirebase();
+        }
+    }
 }
 
-function listenToProducts() {
-    db.collection('products').orderBy('order', 'asc').onSnapshot(snapshot => {
-        products = [];
-        snapshot.forEach(doc => {
-            products.push({ id: doc.id, ...doc.data() });
-        });
-        renderProductsTable();
+// Fresh fetch when cache is invalid
+async function fetchFreshDataFromFirebase() {
+    try {
+        const [catSnapshot, prodSnapshot] = await Promise.all([
+            db.collection('categories').orderBy('order', 'asc').get(),
+            db.collection('products').orderBy('order', 'asc').get()
+        ]);
+
+        categories = catSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        products = prodSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        setLocalCache('categories', categories);
+        setLocalCache('products', products);
+
         renderCategoriesTable();
-    }, err => {
-        console.error("Error fetching products:", err);
-    });
+        populateCategoryDropdowns();
+        renderProductsTable();
+    } catch (err) {
+        console.error("Error fetching fresh data:", err);
+        showToast("خطأ في الاتصال بالسيرفر: " + err.message, "error");
+    }
 }
 
 function listenToAdmins() {
@@ -641,6 +705,8 @@ categoryForm.addEventListener('submit', async (e) => {
             await db.collection('categories').add(data);
             showToast(`تمت إضافة القسم "${name_ar}" بنجاح`, 'success');
         }
+        await touchSystemMetadata();
+        await fetchFreshDataFromFirebase();
         categoryModal.classList.remove('active');
     } catch (err) {
         console.error('Error saving category:', err);
@@ -671,6 +737,8 @@ window.deleteCategory = function(id) {
         async () => {
             try {
                 await db.collection('categories').doc(id).delete();
+                await touchSystemMetadata();
+                await fetchFreshDataFromFirebase();
                 showToast(`تم حذف القسم "${catName}" بنجاح`, 'success');
             } catch (err) {
                 console.error('Error deleting category:', err);
@@ -794,6 +862,8 @@ productForm.addEventListener('submit', async (e) => {
             await db.collection('products').add(data);
             showToast(`تمت إضافة المنتج "${name_ar}" بنجاح`, 'success');
         }
+        await touchSystemMetadata();
+        await fetchFreshDataFromFirebase();
         productModal.classList.remove('active');
     } catch (err) {
         console.error('Error saving product:', err);
@@ -817,6 +887,8 @@ window.deleteProduct = function(id) {
         async () => {
             try {
                 await db.collection('products').doc(id).delete();
+                await touchSystemMetadata();
+                await fetchFreshDataFromFirebase();
                 showToast(`تم حذف المنتج "${prodName}" بنجاح`, 'success');
             } catch (err) {
                 console.error('Error deleting product:', err);
