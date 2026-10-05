@@ -92,16 +92,20 @@ async function loadMenuSmartly() {
 
 async function fetchFreshMenuFromFirebase() {
     try {
-        // Fetch categories and products in parallel
+        // Fetch categories and products without compound index requirements
         const [catSnapshot, prodSnapshot] = await Promise.all([
-            db.collection('categories').where('is_active', '!=', false).orderBy('is_active').orderBy('order', 'asc').get(),
-            db.collection('products').where('is_available', '==', true).get()
+            db.collection('categories').get(),
+            db.collection('products').get()
         ]);
 
-        categories = catSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        categories = catSnapshot.docs
+            .map(doc => ({ id: doc.id, ...doc.data() }))
+            .filter(c => c.is_active !== false)
+            .sort((a, b) => (a.order || 1) - (b.order || 1));
         
-        // Sort products by order property locally
-        products = prodSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+        products = prodSnapshot.docs
+            .map(doc => ({ id: doc.id, ...doc.data() }))
+            .filter(p => p.is_available !== false)
             .sort((a, b) => (a.order || 1) - (b.order || 1));
 
         setLocalCache('categories', categories);
