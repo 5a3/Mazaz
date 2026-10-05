@@ -904,5 +904,31 @@ input:checked + .slider:before {
     gap: 4px;
 }
 
+.admin-dev-credit {
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px dashed var(--border-color);
+    text-align: center;
+}
+
+.dev-link-admin {
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0.8;
+    transition: var(--transition);
+}
+
+.dev-link-admin:hover {
+    color: #00A651;
+    opacity: 1;
+}
+
+
+
 
 
