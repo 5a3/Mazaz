@@ -204,7 +204,7 @@ function showDashboard() {
     // Role Security Enforcement (Superadmin vs Admin)
     if (currentAdmin.role === 'superadmin') {
         if (adminsNavBtn) adminsNavBtn.style.display = 'flex';
-        listenToAdmins();
+        fetchAdminsOnce();
     } else {
         if (adminsNavBtn) adminsNavBtn.style.display = 'none';
     }
@@ -312,6 +312,7 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
             document.getElementById('currentPageTitle').textContent = 'إدارة المدراء';
             document.getElementById('currentPageSub').textContent = 'إدارة حسابات المسؤولين والأدوار والصلات';
             headerAddBtn.style.display = 'none';
+            fetchAdminsOnce();
         } else {
             document.getElementById('currentPageTitle').textContent = 'إدخال البيانات الأولية';
             document.getElementById('currentPageSub').textContent = 'رفع بيانات منيو مزاز الكاملة تلقائياً';
@@ -462,16 +463,18 @@ async function fetchFreshDataFromFirebase() {
     }
 }
 
-function listenToAdmins() {
-    db.collection('admins').onSnapshot(snapshot => {
-        adminsList = [];
-        snapshot.forEach(doc => {
-            adminsList.push({ id: doc.id, ...doc.data() });
-        });
+async function fetchAdminsOnce(force = false) {
+    if (!force && adminsList.length > 0) {
         renderAdminsTable();
-    }, err => {
+        return;
+    }
+    try {
+        const snapshot = await db.collection('admins').get();
+        adminsList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        renderAdminsTable();
+    } catch (err) {
         console.error("Error fetching admins:", err);
-    });
+    }
 }
 
 // ==========================================
@@ -963,6 +966,7 @@ if (adminForm) {
                 await db.collection('admins').add(data);
                 showToast(`تمت إضافة المدير "${displayName}" بنجاح`, 'success');
             }
+            await fetchAdminsOnce(true);
             adminModal.classList.remove('active');
         } catch (err) {
             console.error('Error saving admin:', err);
@@ -993,6 +997,7 @@ window.deleteAdmin = function(id) {
         async () => {
             try {
                 await db.collection('admins').doc(id).delete();
+                await fetchAdminsOnce(true);
                 showToast(`تم حذف المدير "${adminName}" بنجاح`, 'success');
             } catch (err) {
                 console.error('Error deleting admin:', err);
